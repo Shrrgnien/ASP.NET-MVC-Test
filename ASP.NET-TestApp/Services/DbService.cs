@@ -3,6 +3,7 @@ using ASP.NET_TestApp.Models;
 using ASP.NET_TestApp.ViewModels;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Internal;
+using System.Diagnostics;
 using System.Numerics;
 
 namespace ASP.NET_TestApp.Services
@@ -14,12 +15,8 @@ namespace ASP.NET_TestApp.Services
         { 
             _configuration = configuration;
         }
-        public async void CreatePlayer(Player? player = null)
+        public async void CreatePlayer(Player player)
         {
-            if (player == null)
-            {
-                player = new Player { Balance = 0, FullName = "Test Payer", RegistarionDate = DateTime.UtcNow, Status = Status.New };
-            }
             using (var context = new PariContext(_configuration))
             {
                 context.Players.Add(player);
@@ -59,31 +56,73 @@ namespace ASP.NET_TestApp.Services
                 var player = await context.Players.FirstOrDefaultAsync(p => p.Id == transaction.PlayerId).ConfigureAwait(false);
                 if (player != null)
                 {
-                    if (revert)
+                    if (!revert)
                     {
                         if (transaction.Type == TransactionType.Deposit)
                         {
-                            player.Balance -= transaction.Amount;
+                            player.Balance += transaction.Amount;
                         }
                         else
                         {
-                            player.Balance += transaction.Amount;
+                            player.Balance -= transaction.Amount;
                         }
                     }
                     else
                     {
                         if (transaction.Type == TransactionType.Deposit)
                         {
-                            player.Balance += transaction.Amount;
+                            player.Balance -= transaction.Amount;
                         }
                         else
                         {
-                            player.Balance -= transaction.Amount;
+                            player.Balance += transaction.Amount;
                         }
                     }
 
                     context.Players.Update(player);
                     await context.SaveChangesAsync().ConfigureAwait(false);
+                }
+            }
+        }
+
+
+        public async Task RecalculateBalance(Bet bet, bool betDeleted = false)
+        {
+            using (var context = new PariContext(_configuration))
+            {
+                var player = await context.Players.FirstOrDefaultAsync(p => p.Id == bet.PlayerId).ConfigureAwait(false);
+                { 
+                    if(player != null)
+                    {
+                        if (!betDeleted)
+                        {
+                            var previousBet = await context.Bets.FindAsync(bet.Id);
+                            if (previousBet != null)
+                            {
+                                if (previousBet.Amount != bet.Amount)
+                                {
+                                    player.Balance += previousBet.Amount - bet.Amount;
+                                }
+                                if (previousBet.Gain != bet.Gain)
+                                {
+                                    player.Balance += bet.Gain - previousBet.Gain;
+                                }
+                            }
+                            else
+                            {
+                                player.Balance -= bet.Amount;
+                                player.Balance += bet.Gain;
+                            }
+                        }
+                        else
+                        {
+                            player.Balance += bet.Amount;
+                            player.Balance -= bet.Gain;
+                        }
+
+                        context.Players.Update(player);
+                        await context.SaveChangesAsync().ConfigureAwait(false);
+                    }
                 }
             }
         }
@@ -117,11 +156,7 @@ namespace ASP.NET_TestApp.Services
             }
         }
 
-        public async Task RevertTransaction(Transaction transaction)
-        {
-
-        }
-        public async Task<IEnumerable<ReportViewModel>> GenerateReport(Status? status = Status.New, bool? isBetHigher = false)
+        public async Task<IEnumerable<ReportViewModel>> GenerateReport(Status? status, bool betIsHigher = false)
         {
             List<ReportViewModel> report = new List<ReportViewModel>();
             using (var context = new PariContext(_configuration))
@@ -132,8 +167,9 @@ namespace ASP.NET_TestApp.Services
                 
                 if(players != null)
                 {
-                    if (status.HasValue && isBetHigher.HasValue)
+                    if (status.HasValue)
                     {
+                        players = players.Where(p => p.Status == status).ToList();
                     }
                     foreach (var player in players)
                     {
@@ -148,10 +184,15 @@ namespace ASP.NET_TestApp.Services
                         reportRecord.TotalBetAmount = totalBetAmount;
                         report.Add(reportRecord);
                     }
+                    if (betIsHigher)
+                    {
+                        report = report.Where(r => r.TotalBetAmount > r.TotalDepositeAmount).ToList();
+                    }
                 }
 
                 return report;
             };
         }
+
     }
 }

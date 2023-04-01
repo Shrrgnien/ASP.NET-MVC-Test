@@ -6,15 +6,18 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ASP.NET_TestApp.Models;
+using ASP.NET_TestApp.Interfaces;
 
 namespace ASP.NET_TestApp.Controllers
 {
     public class BetsController : Controller
     {
+        private readonly IDataService _dataService;
         private readonly PariContext _context;
 
-        public BetsController(PariContext context)
+        public BetsController(PariContext context, IDataService dataService)
         {
+            _dataService = dataService;
             _context = context;
         }
 
@@ -60,7 +63,10 @@ namespace ASP.NET_TestApp.Controllers
             if (ModelState.IsValid)
             {
                 _context.Add(bet);
+                await _dataService.RecalculateBalance(bet);
                 await _context.SaveChangesAsync();
+                
+                
                 return RedirectToAction(nameof(Index));
             }
             return View(bet);
@@ -98,6 +104,7 @@ namespace ASP.NET_TestApp.Controllers
             {
                 try
                 {
+                    await _dataService.RecalculateBalance(bet);
                     _context.Update(bet);
                     await _context.SaveChangesAsync();
                 }
@@ -147,10 +154,13 @@ namespace ASP.NET_TestApp.Controllers
             var bet = await _context.Bets.FindAsync(id);
             if (bet != null)
             {
+                await _dataService.RecalculateBalance(bet, betDeleted: true);
                 _context.Bets.Remove(bet);
+                await _context.SaveChangesAsync();
             }
             
-            await _context.SaveChangesAsync();
+            
+            
             return RedirectToAction(nameof(Index));
         }
 

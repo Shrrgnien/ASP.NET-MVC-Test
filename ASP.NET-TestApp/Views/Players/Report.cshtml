@@ -14,9 +14,10 @@
 {
     <div>
         Status:
-        @Html.DropDownList("string", Html.GetEnumSelectList<Status>(), "Pick status")
+        @Html.DropDownList("status", Html.GetEnumSelectList<Status>(), "Pick status")
         Bet is higher then deposite
-        <input name="betHigher" type="checkbox" />
+        @Html.CheckBox("betIsHigher", false)
+        @*<input name="betIsHigher" type="checkbox" />*@
         <input type="submit" value="Generate report" />
     </div>
 }

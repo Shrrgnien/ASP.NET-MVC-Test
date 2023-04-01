@@ -166,7 +166,7 @@ namespace ASP.NET_TestApp.Controllers
 
         public async Task<IActionResult> GetReport()
         {       
-            return View("Report", await _dataService.GenerateReport(null, null));
+            return View("Report", await _dataService.GenerateReport(null));
         }
 
         [HttpPost]
