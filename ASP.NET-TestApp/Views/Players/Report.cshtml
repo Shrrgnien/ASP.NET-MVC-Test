@@ -1,0 +1,77 @@
+﻿@using Microsoft.AspNetCore.Html;
+@using System.Linq.Expressions;
+@model IEnumerable<ASP.NET_TestApp.ViewModels.ReportViewModel>
+
+@{
+    ViewData["Title"] = "View";
+}
+
+<h1>Report</h1>
+
+
+
+@using (Html.BeginForm("GetReport", "Players", FormMethod.Post))
+{
+    <div>
+        Status:
+        @Html.DropDownList("string", Html.GetEnumSelectList<Status>(), "Pick status")
+        Bet is higher then deposite
+        <input name="betHigher" type="checkbox" />
+        <input type="submit" value="Generate report" />
+    </div>
+}
+
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.First().Player.FullName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.First().Player.Balance)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.First().Player.RegistarionDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.First().Player.Status)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.TotalDepositeAmount)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.TotalBetAmount)
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+            <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Player.FullName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Player.Balance)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Player.RegistarionDate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Player.Status)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.TotalDepositeAmount)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.TotalBetAmount)
+            </td>
+@*            <td>
+                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+            </td>*@
+        </tr>
+}
+    </tbody>
+</table>
