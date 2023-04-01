@@ -38,8 +38,8 @@ namespace ASP.NET_TestApp.Services
         {
             using (var context = new PariContext(_configuration))
             {
-                var player =await  context.Players.FirstOrDefaultAsync();
-                return await context.Players.ToListAsync();
+                var player = await  context.Players.FirstOrDefaultAsync().ConfigureAwait(false);
+                return await context.Players.ToListAsync().ConfigureAwait(false);
             }
         }
 

@@ -25,7 +25,7 @@ namespace ASP.NET_TestApp.Controllers
         public async Task<IActionResult> Index()
         {
               return _context.Bets != null ? 
-                          View(await _context.Bets.ToListAsync()) :
+                          View(await _context.Bets.ToListAsync().ConfigureAwait(false)) :
                           Problem("Entity set 'PariContext.Bets'  is null.");
         }
 
@@ -38,7 +38,7 @@ namespace ASP.NET_TestApp.Controllers
             }
 
             var bet = await _context.Bets
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .FirstOrDefaultAsync(m => m.Id == id).ConfigureAwait(false);
             if (bet == null)
             {
                 return NotFound();
@@ -63,8 +63,8 @@ namespace ASP.NET_TestApp.Controllers
             if (ModelState.IsValid)
             {
                 _context.Add(bet);
-                await _dataService.RecalculateBalanceAsync(bet);
-                await _context.SaveChangesAsync();
+                await _dataService.RecalculateBalanceAsync(bet).ConfigureAwait(false);
+                await _context.SaveChangesAsync().ConfigureAwait(false);
                 
                 
                 return RedirectToAction(nameof(Index));
@@ -80,7 +80,7 @@ namespace ASP.NET_TestApp.Controllers
                 return NotFound();
             }
 
-            var bet = await _context.Bets.FindAsync(id);
+            var bet = await _context.Bets.FindAsync(id).ConfigureAwait(false);
             if (bet == null)
             {
                 return NotFound();
@@ -104,9 +104,9 @@ namespace ASP.NET_TestApp.Controllers
             {
                 try
                 {
-                    await _dataService.RecalculateBalanceAsync(bet);
+                    await _dataService.RecalculateBalanceAsync(bet).ConfigureAwait(false);
                     _context.Update(bet);
-                    await _context.SaveChangesAsync();
+                    await _context.SaveChangesAsync().ConfigureAwait(false);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -133,7 +133,7 @@ namespace ASP.NET_TestApp.Controllers
             }
 
             var bet = await _context.Bets
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .FirstOrDefaultAsync(m => m.Id == id).ConfigureAwait(false);
             if (bet == null)
             {
                 return NotFound();
@@ -154,9 +154,9 @@ namespace ASP.NET_TestApp.Controllers
             var bet = await _context.Bets.FindAsync(id);
             if (bet != null)
             {
-                await _dataService.RecalculateBalanceAsync(bet, betDeleted: true);
+                await _dataService.RecalculateBalanceAsync(bet, betDeleted: true).ConfigureAwait(false);
                 _context.Bets.Remove(bet);
-                await _context.SaveChangesAsync();
+                await _context.SaveChangesAsync().ConfigureAwait(false);
             }
             
             
