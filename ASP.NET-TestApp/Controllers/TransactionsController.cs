@@ -62,7 +62,7 @@ namespace ASP.NET_TestApp.Controllers
             if (ModelState.IsValid)
             {
                 _context.Add(transaction);
-                await _dataService.RecalculateBalance(transaction);
+                await _dataService.RecalculateBalanceAsync(transaction).ConfigureAwait(false);
                 await _context.SaveChangesAsync().ConfigureAwait(false);
 
                 return RedirectToAction(nameof(Index));
@@ -104,7 +104,7 @@ namespace ASP.NET_TestApp.Controllers
                 {
                     _context.Update(transaction);
                     await _context.SaveChangesAsync().ConfigureAwait(false);
-                    await _dataService.RecalculateBalance(transaction).ConfigureAwait(false);
+                    await _dataService.RecalculateBalanceAsync(transaction).ConfigureAwait(false);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -154,7 +154,7 @@ namespace ASP.NET_TestApp.Controllers
             {
                 _context.Transactions.Remove(transaction);
                 await _context.SaveChangesAsync().ConfigureAwait(false);
-                await _dataService.RecalculateBalance(transaction, true).ConfigureAwait(false);
+                await _dataService.RecalculateBalanceAsync(transaction, true).ConfigureAwait(false);
             }
             
 

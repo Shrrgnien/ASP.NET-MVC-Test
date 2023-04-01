@@ -26,7 +26,7 @@ namespace ASP.NET_TestApp.Controllers
         public async Task<IActionResult> Index()
         {
               return _context.Players != null ? 
-                          View(await _context.Players.ToListAsync()) :
+                          View(await _context.Players.ToListAsync().ConfigureAwait(false)) :
                           Problem("Entity set 'PariContext.Players'  is null.");
         }
 
@@ -39,7 +39,7 @@ namespace ASP.NET_TestApp.Controllers
             }
 
             var player = await _context.Players
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .FirstOrDefaultAsync(m => m.Id == id).ConfigureAwait(false);
             if (player == null)
             {
                 return NotFound();
@@ -64,7 +64,7 @@ namespace ASP.NET_TestApp.Controllers
             if (ModelState.IsValid)
             {
                 _context.Add(player);
-                await _context.SaveChangesAsync();
+                await _context.SaveChangesAsync().ConfigureAwait(false);
                 return RedirectToAction(nameof(Index));
             }
             return View(player);
@@ -78,7 +78,7 @@ namespace ASP.NET_TestApp.Controllers
                 return NotFound();
             }
 
-            var player = await _context.Players.FindAsync(id);
+            var player = await _context.Players.FindAsync(id).ConfigureAwait(false);
             if (player == null)
             {
                 return NotFound();
@@ -103,7 +103,7 @@ namespace ASP.NET_TestApp.Controllers
                 try
                 {
                     _context.Update(player);
-                    await _context.SaveChangesAsync();
+                    await _context.SaveChangesAsync().ConfigureAwait(false);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -130,7 +130,7 @@ namespace ASP.NET_TestApp.Controllers
             }
 
             var player = await _context.Players
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .FirstOrDefaultAsync(m => m.Id == id).ConfigureAwait(false);
             if (player == null)
             {
                 return NotFound();
@@ -148,31 +148,31 @@ namespace ASP.NET_TestApp.Controllers
             {
                 return Problem("Entity set 'PariContext.Players'  is null.");
             }
-            var player = await _context.Players.FindAsync(id);
+            var player = await _context.Players.FindAsync(id).ConfigureAwait(false);
             if (player != null)
             {
                 _context.Players.Remove(player);
             }
             
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync().ConfigureAwait(false);
             return RedirectToAction(nameof(Index));
         }
 
         public async Task<IActionResult> RecalculateBalance(int playerId)
         {
-            await _dataService.RecalculateBalance(playerId);
+            await _dataService.RecalculateBalanceAsync(playerId).ConfigureAwait(false);
             return Ok();
         }
 
         public async Task<IActionResult> GetReport()
         {       
-            return View("Report", await _dataService.GenerateReport(null));
+            return View("Report", await _dataService.GenerateReportAsync(null).ConfigureAwait(false));
         }
 
         [HttpPost]
         public async Task<IActionResult> GetReport(Status status, bool betIsHigher)
         {
-            return View("Report", await _dataService.GenerateReport(status, betIsHigher));
+            return View("Report", await _dataService.GenerateReportAsync(status, betIsHigher).ConfigureAwait(false));
         }
 
         private bool PlayerExists(int id)

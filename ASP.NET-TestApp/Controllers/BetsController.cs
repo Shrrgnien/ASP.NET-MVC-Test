@@ -63,7 +63,7 @@ namespace ASP.NET_TestApp.Controllers
             if (ModelState.IsValid)
             {
                 _context.Add(bet);
-                await _dataService.RecalculateBalance(bet);
+                await _dataService.RecalculateBalanceAsync(bet);
                 await _context.SaveChangesAsync();
                 
                 
@@ -104,7 +104,7 @@ namespace ASP.NET_TestApp.Controllers
             {
                 try
                 {
-                    await _dataService.RecalculateBalance(bet);
+                    await _dataService.RecalculateBalanceAsync(bet);
                     _context.Update(bet);
                     await _context.SaveChangesAsync();
                 }
@@ -154,7 +154,7 @@ namespace ASP.NET_TestApp.Controllers
             var bet = await _context.Bets.FindAsync(id);
             if (bet != null)
             {
-                await _dataService.RecalculateBalance(bet, betDeleted: true);
+                await _dataService.RecalculateBalanceAsync(bet, betDeleted: true);
                 _context.Bets.Remove(bet);
                 await _context.SaveChangesAsync();
             }

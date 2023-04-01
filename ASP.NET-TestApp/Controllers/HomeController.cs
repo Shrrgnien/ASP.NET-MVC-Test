@@ -8,17 +8,14 @@ namespace ASP.NET_TestApp.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-        private readonly IDataService _dataService;
-        public HomeController(ILogger<HomeController> logger, IDataService dataService)
+        public HomeController(ILogger<HomeController> logger)
         {
             _logger = logger;
-            _dataService = dataService;
         }
 
         public IActionResult Index()
         {
-            _dataService.GetPlayers();
-            return View();
+            return RedirectToActionPreserveMethod("Index", "Players");
         }
 
         public IActionResult Privacy()

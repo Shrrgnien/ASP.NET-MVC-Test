@@ -15,12 +15,12 @@ namespace ASP.NET_TestApp.Services
         { 
             _configuration = configuration;
         }
-        public async void CreatePlayer(Player player)
+        public async void CreatePlayerAsync(Player player)
         {
             using (var context = new PariContext(_configuration))
             {
                 context.Players.Add(player);
-                await context.SaveChangesAsync();
+                await context.SaveChangesAsync().ConfigureAwait(false);
             }
         }
 
@@ -34,22 +34,16 @@ namespace ASP.NET_TestApp.Services
             throw new NotImplementedException();
         }
 
-        public List<Player> GetPlayers()
+        public async Task<List<Player>> GetPlayersAsync()
         {
             using (var context = new PariContext(_configuration))
             {
-                var player = context.Players.FirstOrDefault();
-                return context.Players.ToList();
+                var player =await  context.Players.FirstOrDefaultAsync();
+                return await context.Players.ToListAsync();
             }
         }
 
-        public double RecalculateBalance(IEnumerable<Transaction> transactions)
-        {
-            var balance = 0;
-            return balance;
-        }
-
-        public async Task RecalculateBalance(Transaction transaction, bool revert = false)
+        public async Task RecalculateBalanceAsync(Transaction transaction, bool revert = false)
         {
             using (var context = new PariContext(_configuration))
             {
@@ -86,7 +80,7 @@ namespace ASP.NET_TestApp.Services
         }
 
 
-        public async Task RecalculateBalance(Bet bet, bool betDeleted = false)
+        public async Task RecalculateBalanceAsync(Bet bet, bool betDeleted = false)
         {
             using (var context = new PariContext(_configuration))
             {
@@ -96,7 +90,7 @@ namespace ASP.NET_TestApp.Services
                     {
                         if (!betDeleted)
                         {
-                            var previousBet = await context.Bets.FindAsync(bet.Id);
+                            var previousBet = await context.Bets.FindAsync(bet.Id).ConfigureAwait(false);
                             if (previousBet != null)
                             {
                                 if (previousBet.Amount != bet.Amount)
@@ -127,7 +121,7 @@ namespace ASP.NET_TestApp.Services
             }
         }
 
-        public async Task RecalculateBalance(int playerId)
+        public async Task RecalculateBalanceAsync(int playerId)
         {
             using (var context = new PariContext(_configuration))
             {
@@ -156,7 +150,7 @@ namespace ASP.NET_TestApp.Services
             }
         }
 
-        public async Task<IEnumerable<ReportViewModel>> GenerateReport(Status? status, bool betIsHigher = false)
+        public async Task<IEnumerable<ReportViewModel>> GenerateReportAsync(Status? status, bool betIsHigher = false)
         {
             List<ReportViewModel> report = new List<ReportViewModel>();
             using (var context = new PariContext(_configuration))
